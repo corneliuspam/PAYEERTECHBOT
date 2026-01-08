@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PAYEER TECH ADMIN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+:root{
+  --green:#16a34a;
+  --dark:#020617;
+  --light:#f8fafc;
+}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--light);
+}
+header{
+  background:var(--dark);
+  color:#fff;
+  padding:14px;
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
+.page{display:none;padding:16px;padding-bottom:80px}
+.page.active{display:block}
+.card{
+  background:#fff;
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:14px;
+  box-shadow:0 6px 15px rgba(0,0,0,.15);
+}
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  display:flex;
+  background:#020617;
+}
+.bottom div{
+  flex:1;
+  text-align:center;
+  padding:8px;
+  font-size:12px;
+  color:#aaa;
+}
+.bottom div.active{color:#16a34a;font-weight:bold}
+.icon{font-size:22px;display:block}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#16a34a;
+  color:#fff;
+  font-weight:bold;
+}
+input,textarea{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  margin-top:6px;
+}
+.admin-badge{
+  background:#16a34a;
+  color:#fff;
+  padding:6px 12px;
+  border-radius:20px;
+  display:inline-block;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  PAYEER TECH ADMIN<br>
+  <span class="admin-badge">ADMIN PANEL</span>
+</header>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="page active">
+  <div class="card">
+    <h3>Admin Info</h3>
+    <p><b>ID:</b> <span id="adminId"></span></p>
+    <p><b>Name:</b> <span id="adminName"></span></p>
+  </div>
+
+  <div class="card">
+    <h3>Statistics</h3>
+    <p>👥 Users: <b>0</b></p>
+    <p>💸 Pending Withdrawals: <b>0</b></p>
+    <p>📝 Pending Tasks: <b>0</b></p>
+  </div>
+</div>
+
+<!-- ANNOUNCEMENT -->
+<div id="announce" class="page">
+  <div class="card">
+    <h3>Post Announcement</h3>
+    <textarea placeholder="Write announcement..."></textarea>
+    <button onclick="postAnnounce()">Post</button>
+  </div>
+</div>
+
+<!-- TASKS -->
+<div id="tasks" class="page">
+  <div class="card">
+    <h3>Create Task</h3>
+    <input placeholder="Task title">
+    <textarea placeholder="Task instructions"></textarea>
+    <input placeholder="Reward (₦)">
+    <button onclick="postTask()">Post Task</button>
+  </div>
+</div>
+
+<!-- APPROVALS -->
+<div id="approve" class="page">
+  <div class="card">
+    <h3>Approvals</h3>
+    <p>No pending requests</p>
+    <button disabled>Approve</button>
+  </div>
+</div>
+
+<!-- USERS -->
+<div id="users" class="page">
+  <div class="card">
+    <h3>Users</h3>
+    <p>List will load from backend</p>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="bottom">
+  <div class="active" onclick="openPage('dashboard',this)"><span class="icon">📊</span>Dashboard</div>
+  <div onclick="openPage('announce',this)"><span class="icon">📢</span>Post</div>
+  <div onclick="openPage('tasks',this)"><span class="icon">📝</span>Tasks</div>
+  <div onclick="openPage('approve',this)"><span class="icon">✅</span>Approve</div>
+  <div onclick="openPage('users',this)"><span class="icon">👥</span>Users</div>
+</div>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+const admin = tg.initDataUnsafe.user;
+
+// ⚠️ ADMIN ID CHECK (VERY IMPORTANT)
+const ADMIN_IDS = [6139816385]; // <-- PUT YOUR TELEGRAM ID HERE
+
+if(!admin || !ADMIN_IDS.includes(admin.id)){
+  tg.showAlert("Access denied");
+  document.body.innerHTML = "";
+}
+
+document.getElementById("adminId").innerText = admin.id;
+document.getElementById("adminName").innerText = admin.first_name;
+
+function openPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.bottom div').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function postAnnounce(){
+  tg.showAlert("Announcement sent");
+}
+function postTask(){
+  tg.showAlert("Task posted");
+}
+</script>
+
+</body>
+</html>
