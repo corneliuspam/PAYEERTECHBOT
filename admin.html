@@ -1,186 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PAYEER TECH ADMIN</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+<title>Payeer Tech - Admin Panel</title>
 <style>
-:root{
-  --green:#16a34a;
-  --dark:#020617;
-  --light:#f8fafc;
-}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--light);
-}
-header{
-  background:var(--dark);
-  color:#fff;
-  padding:14px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-}
-.page{display:none;padding:16px;padding-bottom:80px}
-.page.active{display:block}
-.card{
-  background:#fff;
-  padding:16px;
-  border-radius:16px;
-  margin-bottom:14px;
-  box-shadow:0 6px 15px rgba(0,0,0,.15);
-}
-.bottom{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  display:flex;
-  background:#020617;
-}
-.bottom div{
-  flex:1;
-  text-align:center;
-  padding:8px;
-  font-size:12px;
-  color:#aaa;
-}
-.bottom div.active{color:#16a34a;font-weight:bold}
-.icon{font-size:22px;display:block}
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  background:#16a34a;
-  color:#fff;
-  font-weight:bold;
-}
-input,textarea{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-top:6px;
-}
-.admin-badge{
-  background:#16a34a;
-  color:#fff;
-  padding:6px 12px;
-  border-radius:20px;
-  display:inline-block;
-  font-size:12px;
-}
+  body {margin:0;font-family:Arial,sans-serif;background:#fff;color:#333;}
+  header {background:#4caf50;color:#fff;padding:15px;text-align:center;font-size:22px;font-weight:bold;}
+  .container{padding:15px;}
+  .card{background:#f0f0f0;border-radius:10px;padding:15px;margin-bottom:20px;}
+  h3{margin-top:0;color:#4caf50;}
+  input,textarea,select{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:1px solid #ccc;}
+  textarea{resize:none;}
+  button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:8px;background:#4caf50;color:#fff;font-size:16px;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;}
+  table th, table td{border-bottom:1px solid #ddd;padding:8px;text-align:left;}
+  .approve{background:#2196f3;}
+  .reject{background:#f44336;}
 </style>
 </head>
-
 <body>
 
-<header>
-  PAYEER TECH ADMIN<br>
-  <span class="admin-badge">ADMIN PANEL</span>
-</header>
+<header>PAYEER TECH - ADMIN PANEL</header>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="page active">
-  <div class="card">
-    <h3>Admin Info</h3>
-    <p><b>ID:</b> <span id="adminId"></span></p>
-    <p><b>Name:</b> <span id="adminName"></span></p>
+<div class="container">
+
+  <!-- API BASE -->
+  <script>
+    const API_BASE = "https://payeer-backend-production.up.railway.app";
+  </script>
+
+  <!-- Admin Login -->
+  <div class="card" id="loginCard">
+    <h3>Admin Login</h3>
+    <input id="adminEmail" type="email" placeholder="Admin Email" value="corneliuspam8736@gmail.com"/>
+    <input id="adminPassword" type="password" placeholder="Admin Password" value="2001@pam"/>
+    <button onclick="adminLogin()">Login</button>
+    <p id="loginStatus"></p>
   </div>
 
-  <div class="card">
-    <h3>Statistics</h3>
-    <p>👥 Users: <b>0</b></p>
-    <p>💸 Pending Withdrawals: <b>0</b></p>
-    <p>📝 Pending Tasks: <b>0</b></p>
-  </div>
-</div>
+  <!-- Dashboard -->
+  <div id="dashboard" style="display:none;">
+    <!-- Post Announcement -->
+    <div class="card">
+      <h3>Post Announcement</h3>
+      <textarea id="announcement" rows="3" placeholder="Admin message"></textarea>
+      <button onclick="postAnnouncement()">Send Announcement</button>
+    </div>
 
-<!-- ANNOUNCEMENT -->
-<div id="announce" class="page">
-  <div class="card">
-    <h3>Post Announcement</h3>
-    <textarea placeholder="Write announcement..."></textarea>
-    <button onclick="postAnnounce()">Post</button>
-  </div>
-</div>
+    <!-- Create Task -->
+    <div class="card">
+      <h3>Create Task</h3>
+      <input id="taskTitle" placeholder="Task Title"/>
+      <textarea id="taskDesc" placeholder="Task Description"></textarea>
+      <button onclick="createTask()">Post Task</button>
+    </div>
 
-<!-- TASKS -->
-<div id="tasks" class="page">
-  <div class="card">
-    <h3>Create Task</h3>
-    <input placeholder="Task title">
-    <textarea placeholder="Task instructions"></textarea>
-    <input placeholder="Reward (₦)">
-    <button onclick="postTask()">Post Task</button>
-  </div>
-</div>
+    <!-- Pending Tasks -->
+    <div class="card">
+      <h3>Pending Task Approvals</h3>
+      <table id="taskTable">
+        <tr><th>User</th><th>Task</th><th>Action</th></tr>
+      </table>
+    </div>
 
-<!-- APPROVALS -->
-<div id="approve" class="page">
-  <div class="card">
-    <h3>Approvals</h3>
-    <p>No pending requests</p>
-    <button disabled>Approve</button>
-  </div>
-</div>
+    <!-- Withdrawal Requests -->
+    <div class="card">
+      <h3>Withdrawal Requests</h3>
+      <table id="withdrawTable">
+        <tr><th>User</th><th>Amount</th><th>Bank</th><th>Action</th></tr>
+      </table>
+    </div>
 
-<!-- USERS -->
-<div id="users" class="page">
-  <div class="card">
-    <h3>Users</h3>
-    <p>List will load from backend</p>
+    <button onclick="logout()">Logout</button>
   </div>
-</div>
 
-<!-- NAV -->
-<div class="bottom">
-  <div class="active" onclick="openPage('dashboard',this)"><span class="icon">📊</span>Dashboard</div>
-  <div onclick="openPage('announce',this)"><span class="icon">📢</span>Post</div>
-  <div onclick="openPage('tasks',this)"><span class="icon">📝</span>Tasks</div>
-  <div onclick="openPage('approve',this)"><span class="icon">✅</span>Approve</div>
-  <div onclick="openPage('users',this)"><span class="icon">👥</span>Users</div>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
-
-const admin = tg.initDataUnsafe.user;
-
-// ⚠️ ADMIN ID CHECK (VERY IMPORTANT)
-const ADMIN_IDS = [6139816385]; // <-- PUT YOUR TELEGRAM ID HERE
-
-if(!admin || !ADMIN_IDS.includes(admin.id)){
-  tg.showAlert("Access denied");
-  document.body.innerHTML = "";
+// Admin login
+function adminLogin(){
+  const email=document.getElementById("adminEmail").value;
+  const pass=document.getElementById("adminPassword").value;
+  if(email==="corneliuspam8736@gmail.com" && pass==="2001@pam"){
+    document.getElementById("loginCard").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+    loadTasks();
+    loadWithdrawals();
+  }else{
+    document.getElementById("loginStatus").innerText="Invalid login";
+  }
 }
 
-document.getElementById("adminId").innerText = admin.id;
-document.getElementById("adminName").innerText = admin.first_name;
-
-function openPage(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.bottom div').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
+// Post announcement
+function postAnnouncement(){
+  const message=document.getElementById("announcement").value;
+  fetch(API_BASE+"/api/admin/announcement",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message})})
+  .then(()=>alert("Announcement sent"));
 }
 
-function postAnnounce(){
-  tg.showAlert("Announcement sent");
+// Create task
+function createTask(){
+  const title=document.getElementById("taskTitle").value;
+  const desc=document.getElementById("taskDesc").value;
+  fetch(API_BASE+"/api/tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,description:desc,reward:1000})})
+  .then(()=>{alert("Task posted"); loadTasks();});
 }
-function postTask(){
-  tg.showAlert("Task posted");
+
+// Load pending tasks
+function loadTasks(){
+  fetch(API_BASE+"/api/tasks")
+  .then(res=>res.json())
+  .then(tasks=>{
+    const table=document.getElementById("taskTable");
+    table.innerHTML='<tr><th>User</th><th>Task</th><th>Action</th></tr>';
+    tasks.forEach(t=>{
+      table.innerHTML+=`<tr>
+        <td>${t.userId||"-"}</td>
+        <td>${t.title}</td>
+        <td><button onclick="approveTask('${t._id}','${t.userId||""}')">Approve</button></td>
+      </tr>`;
+    });
+  });
+}
+
+// Approve task
+function approveTask(taskId,userId){
+  fetch(API_BASE+"/api/admin/approve-task",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({taskId,userId})})
+  .then(()=>{alert("Task approved"); loadTasks();});
+}
+
+// Load withdrawal requests
+function loadWithdrawals(){
+  fetch(API_BASE+"/api/admin/withdrawals")
+  .then(res=>res.json())
+  .then(list=>{
+    const table=document.getElementById("withdrawTable");
+    table.innerHTML='<tr><th>User</th><th>Amount</th><th>Bank</th><th>Action</th></tr>';
+    list.forEach(w=>{
+      table.innerHTML+=`<tr>
+        <td>${w.userId}</td>
+        <td>₦${w.amount}</td>
+        <td>${w.bank}</td>
+        <td><button onclick="approveWithdrawal('${w._id}')">Approve</button></td>
+      </tr>`;
+    });
+  });
+}
+
+// Approve withdrawal
+function approveWithdrawal(id){
+  fetch(API_BASE+"/api/admin/approve-withdrawal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})})
+  .then(()=>{alert("Withdrawal approved"); loadWithdrawals();});
+}
+
+function logout(){
+  location.reload();
 }
 </script>
-  const API_BASE = "https://payeer-tech.up.railway.app";
-</script>
-  
+
 </body>
 </html>
