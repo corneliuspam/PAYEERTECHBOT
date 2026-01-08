@@ -1,196 +1,202 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PAYEER TECH</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+<title>Payeer Tech - User Panel</title>
 <style>
-:root{
-  --green:#16a34a;
-  --dark:#020617;
-  --light:#f8fafc;
-}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--light);
-}
-header{
-  background:var(--dark);
-  color:#fff;
-  padding:14px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-}
-.page{display:none;padding:16px;padding-bottom:80px}
-.page.active{display:block}
-
-.card{
-  background:#fff;
-  padding:16px;
-  border-radius:16px;
-  margin-bottom:14px;
-  box-shadow:0 6px 15px rgba(0,0,0,.15);
-}
-
-.balance{
-  background:linear-gradient(135deg,#16a34a,#22c55e);
-  color:#fff;
-  text-align:center;
-}
-
-.bottom{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  display:flex;
-  background:#020617;
-}
-.bottom div{
-  flex:1;
-  text-align:center;
-  padding:8px;
-  font-size:12px;
-  color:#aaa;
-}
-.bottom div.active{color:#16a34a;font-weight:bold}
-.icon{font-size:22px;display:block}
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  background:#16a34a;
-  color:#fff;
-  font-weight:bold;
-}
-input,textarea{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-top:6px;
-}
+body {margin:0;font-family:Arial,sans-serif;background:#f4f4f4;color:#333;}
+header{background:#4caf50;color:#fff;padding:15px;text-align:center;font-size:22px;font-weight:bold;}
+.container{padding:15px;}
+.card{background:#fff;border-radius:10px;padding:15px;margin-bottom:20px;box-shadow:0 3px 6px rgba(0,0,0,0.1);}
+h3{margin-top:0;color:#4caf50;}
+input,textarea,select{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:1px solid #ccc;}
+textarea{resize:none;}
+button{padding:12px;margin-top:10px;border:none;border-radius:8px;background:#4caf50;color:#fff;font-size:16px;cursor:pointer;}
+.floating-menu{position:fixed;bottom:20px;right:20px;background:#4caf50;color:#fff;padding:15px;border-radius:50%;box-shadow:0 3px 6px rgba(0,0,0,0.2);cursor:pointer;}
+.task-card{background:#e8f5e9;padding:10px;border-radius:8px;margin-bottom:10px;}
 </style>
 </head>
-
 <body>
 
-<header>PAYEER TECH</header>
+<header>Payeer Tech - User Panel</header>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="page active">
-  <div class="card balance">
-    <h3>Balance</h3>
-    <h1>₦0</h1>
-  </div>
-
-  <div class="card">
-    <h3>Announcement</h3>
-    <p id="announce">Welcome to PAYEER TECH Mini App</p>
-  </div>
-</div>
-
-<!-- TASKS -->
-<div id="tasks" class="page">
-  <div class="card">
-    <h3>Tasks</h3>
-    <p>Complete tasks posted by admin.</p>
-    <button onclick="submitTask()">Submit Task</button>
-  </div>
-</div>
-
-<!-- REFERRAL -->
-<div id="referral" class="page">
-  <div class="card">
-    <h3>Your Referral</h3>
-    <input id="refLink" readonly>
-    <button onclick="copyRef()">Copy</button>
-  </div>
-</div>
-
-<!-- WITHDRAW -->
-<div id="withdraw" class="page">
-  <div class="card">
-    <h3>Withdraw</h3>
-    <p>Subscription required before withdrawal.</p>
-    <button onclick="requestWithdraw()">Request Withdrawal</button>
-  </div>
-</div>
-
-<!-- PROFILE -->
-<div id="profile" class="page">
-  <div class="card">
-    <h3>Profile</h3>
-    <p><b>ID:</b> <span id="uid"></span></p>
-    <p><b>Name:</b> <span id="uname"></span></p>
-  </div>
-</div>
-
-<!-- NAV -->
-<div class="bottom">
-  <div class="active" onclick="openPage('dashboard',this)"><span class="icon">🏠</span>Home</div>
-  <div onclick="openPage('tasks',this)"><span class="icon">📝</span>Tasks</div>
-  <div onclick="openPage('referral',this)"><span class="icon">👥</span>Refer</div>
-  <div onclick="openPage('withdraw',this)"><span class="icon">💸</span>Withdraw</div>
-  <div onclick="openPage('profile',this)"><span class="icon">👤</span>Profile</div>
-</div>
-
+<!-- API BASE -->
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
-
-const user = tg.initDataUnsafe.user;
-if(user){
-  document.getElementById("uid").innerText = user.id;
-  document.getElementById("uname").innerText = user.first_name;
-  document.getElementById("refLink").value =
-    "https://t.me/YOUR_BOT?start=" + user.id;
-}
-
-function openPage(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.bottom div').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-}
-
-function copyRef(){
-  navigator.clipboard.writeText(refLink.value);
-  tg.showAlert("Copied!");
-}
-function submitTask(){
-  tg.showAlert("Task submitted for review");
-}
-function requestWithdraw(){
-  tg.showAlert("Withdrawal request sent to admin");
-}
-  <script>
   const API_BASE = "https://payeer-backend-production.up.railway.app";
-<script>
-fetch(API_BASE + "/api/tasks")
-  .then(res => res.json())
-  .then(tasks => {
-    const box = document.getElementById("tasks");
-    box.innerHTML = "";
+  const telegramUserId = "USER_TELEGRAM_ID"; // <-- Replace with real Telegram User ID if using Telegram Mini App
+</script>
 
-    tasks.forEach(task => {
-      box.innerHTML += `
-        <div class="task-card">
-          <h4>${task.title}</h4>
-          <p>${task.description}</p>
-          <b>₦${task.reward}</b>
-          <button onclick="submitTask('${task._id}')">Submit</button>
-        </div>
-      `;
+<div class="container">
+
+  <!-- Dashboard -->
+  <div class="card" id="dashboard">
+    <h3>Balance</h3>
+    <p id="balance">₦0</p>
+
+    <h3>Top Earners</h3>
+    <ul id="topEarners"></ul>
+
+    <h3>Admin Announcements</h3>
+    <div id="announcements"></div>
+  </div>
+
+  <!-- Tasks -->
+  <div class="card" id="tasksMenu">
+    <h3>Available Tasks</h3>
+    <div id="tasks"></div>
+  </div>
+
+  <!-- Referrals -->
+  <div class="card" id="referralMenu">
+    <h3>Referral Link</h3>
+    <input type="text" id="refLink" readonly>
+    <button onclick="copyReferral()">Copy Referral Link</button>
+  </div>
+
+  <!-- Chat / Podcast -->
+  <div class="card" id="chatMenu">
+    <h3>Chat / Podcast</h3>
+    <div id="chatMessages" style="height:150px;overflow-y:scroll;border:1px solid #ccc;padding:5px;"></div>
+    <input id="chatInput" placeholder="Type message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <!-- Profile -->
+  <div class="card" id="profileMenu">
+    <h3>Profile</h3>
+    <img id="profilePic" src="https://via.placeholder.com/100" alt="Profile Picture" style="border-radius:50%;"/>
+    <p>User ID: <span id="userId"></span></p>
+    <p>Balance: ₦<span id="userBalance">0</span></p>
+  </div>
+
+  <!-- Withdrawals -->
+  <div class="card" id="withdrawMenu">
+    <h3>Withdraw</h3>
+    <input type="number" id="withdrawAmount" placeholder="Enter amount"/>
+    <button onclick="requestWithdrawal()">Request Withdrawal</button>
+    <p id="withdrawStatus"></p>
+  </div>
+
+</div>
+
+<!-- Floating Menu Icons -->
+<div class="floating-menu" onclick="scrollToSection('dashboard')">🏠</div>
+<div class="floating-menu" style="bottom:90px;" onclick="scrollToSection('tasksMenu')">📋</div>
+<div class="floating-menu" style="bottom:160px;" onclick="scrollToSection('referralMenu')">🔗</div>
+<div class="floating-menu" style="bottom:230px;" onclick="scrollToSection('chatMenu')">💬</div>
+<div class="floating-menu" style="bottom:300px;" onclick="scrollToSection('profileMenu')">👤</div>
+<div class="floating-menu" style="bottom:370px;" onclick="scrollToSection('withdrawMenu')">💸</div>
+
+<script>
+// Scroll function for floating menu
+function scrollToSection(id){
+  document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
+
+// Load user data
+function loadUser(){
+  fetch(API_BASE+"/api/users/"+telegramUserId)
+  .then(res=>res.json())
+  .then(user=>{
+    document.getElementById("balance").innerText = "₦"+user.balance;
+    document.getElementById("userBalance").innerText = user.balance;
+    document.getElementById("userId").innerText = user._id;
+    document.getElementById("profilePic").src = user.profilePic || "https://via.placeholder.com/100";
+    if(!user.subscribed){
+      document.getElementById("withdrawStatus").innerText = "Subscribe ₦2000 before withdrawal";
+    }
+  });
+}
+
+// Load tasks
+function loadTasks(){
+  fetch(API_BASE+"/api/tasks")
+  .then(res=>res.json())
+  .then(tasks=>{
+    const box=document.getElementById("tasks");
+    box.innerHTML="";
+    tasks.forEach(task=>{
+      box.innerHTML+=`<div class="task-card">
+        <h4>${task.title}</h4>
+        <p>${task.description}</p>
+        <b>₦${task.reward}</b>
+        <button onclick="submitTask('${task._id}')">Submit Task</button>
+      </div>`;
     });
   });
+}
+
+// Submit task
+function submitTask(taskId){
+  fetch(API_BASE+"/api/tasks/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({taskId,userId:telegramUserId})})
+  .then(res=>res.json())
+  .then(()=>{alert("Task submitted, awaiting approval"); loadUser();});
+}
+
+// Load top earners
+function loadTopEarners(){
+  fetch(API_BASE+"/api/users/top")
+  .then(res=>res.json())
+  .then(users=>{
+    const box=document.getElementById("topEarners");
+    box.innerHTML="";
+    users.forEach(u=>{box.innerHTML+=`<li>${u.name || u._id}: ₦${u.balance}</li>`;});
+  });
+}
+
+// Load announcements
+function loadAnnouncements(){
+  fetch(API_BASE+"/api/admin/announcements")
+  .then(res=>res.json())
+  .then(list=>{
+    const box=document.getElementById("announcements");
+    box.innerHTML="";
+    list.forEach(a=>{box.innerHTML+=`<p>${a.message}</p>`;});
+  });
+}
+
+// Referral
+function loadReferral(){
+  const link = "https://t.me/YourBot?start="+telegramUserId;
+  document.getElementById("refLink").value = link;
+}
+function copyReferral(){navigator.clipboard.writeText(document.getElementById("refLink").value); alert("Copied!");}
+
+// Request Withdrawal
+function requestWithdrawal(){
+  const amount = document.getElementById("withdrawAmount").value;
+  fetch(API_BASE+"/api/withdrawals",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({userId:telegramUserId,amount})})
+  .then(res=>res.json())
+  .then(res=>{
+    alert(res.message);
+    loadUser();
+  });
+}
+
+// Chat / Podcast (read-only for user)
+function loadChat(){
+  fetch(API_BASE+"/api/chat")
+  .then(res=>res.json())
+  .then(msgs=>{
+    const box=document.getElementById("chatMessages");
+    box.innerHTML="";
+    msgs.forEach(m=>{box.innerHTML+=`<p><b>${m.sender}:</b> ${m.message}</p>`;});
+    box.scrollTop = box.scrollHeight;
+  });
+}
+
+// Initialize all
+function init(){
+  loadUser();
+  loadTasks();
+  loadTopEarners();
+  loadAnnouncements();
+  loadReferral();
+  loadChat();
+}
+init();
 </script>
-  
+
 </body>
 </html>
