@@ -170,8 +170,26 @@ function submitTask(){
 function requestWithdraw(){
   tg.showAlert("Withdrawal request sent to admin");
 }
-</script>
-const API_BASE = "https://payeer-tech.up.railway.app";
+  <script>
+  const API_BASE = "https://payeer-backend-production.up.railway.app";
+<script>
+fetch(API_BASE + "/api/tasks")
+  .then(res => res.json())
+  .then(tasks => {
+    const box = document.getElementById("tasks");
+    box.innerHTML = "";
+
+    tasks.forEach(task => {
+      box.innerHTML += `
+        <div class="task-card">
+          <h4>${task.title}</h4>
+          <p>${task.description}</p>
+          <b>₦${task.reward}</b>
+          <button onclick="submitTask('${task._id}')">Submit</button>
+        </div>
+      `;
+    });
+  });
 </script>
   
 </body>
